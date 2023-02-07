@@ -42,16 +42,13 @@ class Lift(val hwMap: HardwareMap) : SubsystemBase() {
     private val dashboard = FtcDashboard.getInstance()
     private val telemetry = dashboard.getTelemetry()
 
-    private fun positionAvg() = LiftPosition(
-            LiftPosition.ticksToMm(motor.getPositions().filterNotNull().average())
-    )
-
     /**
      * Should be set as the default command.
      */
     fun update() {
         sendTelemetry()
-        val speedTarget = pidf.calculate(positionAvg().ticks(), level.pos.ticks())
+        val avgPos = LiftPosition(LiftPosition.ticksToMm(motor.getPositions().filterNotNull().average()))
+        val speedTarget = pidf.calculate(avgPos.ticks(), level.pos.ticks())
         if (emergencyStop || pidf.atSetPoint()) {
             motor.stopMotor()
         } else {
